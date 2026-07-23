@@ -58,8 +58,16 @@ Search runs in Postgres, not in the browser: React debounces the input by
 300ms and sends one request, and `buildSearchClause()` in
 `server/db/queries.js` decides what counts as a match.
 
-> **That function is currently a stub that returns `null`** — meaning "no
-> filter", so searching returns every recipe. Implement it to turn search on.
+A term matches if it appears in the **title, description, category, tags or
+ingredients** — so "avocado" finds Guacamole and "vegan" finds everything
+tagged that way. Multi-word queries require *every* word to appear, though
+each may match a different column: "chicken thai" finds the Thai green curry
+because "thai" hits a tag while "chicken" hits the title.
+
+Known limitation: matching is plain substring, so there is no stemming —
+"egg" matches "egg yolks" but "eggs" does not. Postgres full-text search
+(`to_tsvector`/`plainto_tsquery`) would fix that at the cost of a more
+involved query and an index to maintain.
 
 ## Deploying to Vercel
 
